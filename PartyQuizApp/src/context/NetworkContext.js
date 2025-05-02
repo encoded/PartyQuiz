@@ -5,6 +5,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import SIZES from '@src/config/Sizes';
 
+import { useLocal } from '@src/config/Network';
+
 // Create the context
 export const NetworkContext = createContext();
 
@@ -39,6 +41,7 @@ export const NetworkProvider = ({ children }) => {
       <View style={[styles.debugContainer, { bottom: insets.bottom }]}>
         <Text style={styles.debugText}>Connected: {isConnected ? 'Yes' : 'No'}</Text>
         <Text style={styles.debugText}>IP Address: {ipAddress || 'N/A'}</Text>
+        <Text style={styles.debugText}>Using local server: {(useLocal ? 'true' : 'false') || 'N/A'}</Text>
       </View>
     </NetworkContext.Provider>
   );

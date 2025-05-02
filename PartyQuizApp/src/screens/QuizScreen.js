@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import QuizCard from '@src/quiz/QuizCard'; // assume QuizCard is in the same folder
+import LayoutScreen from './LayoutScreen';
 
 const mockQuizData = [
   {

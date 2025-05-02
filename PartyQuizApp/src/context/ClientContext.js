@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
+import { useLocal } from '@src/config/Network';
 
 export const ClientContext = createContext();
 
@@ -11,7 +12,10 @@ export const ClientProvider = ({ children }) => {
   const connectToHost = (ip, name) => {
     if (!ip || !name) return;
 
-    const socket = new WebSocket(`ws://${ip}:3000`);
+    const socket = useLocal ? 
+      new WebSocket(`ws://${ip}:3000`) :
+      new WebSocket('wss://partyquiz.onrender.com');
+
     socketRef.current = socket;
 
     socket.onopen = () => {

@@ -1,6 +1,16 @@
 # PartyQuiz
 
-This is a party quiz game app. The **Host** runs the server and the **Client** connects to it via WebSocket. This README explains how to set up and run the server locally on your machine.
+The app is live at [PartyQuiz](https://encoded.github.io/PartyQuiz)!
+At the moment the app will connect to a server hosted on **Render**.
+More info
+
+However, a local server must still be run to play the game. Please follow the instructions in the section: [Run the Server](#3-run-the-server).
+
+Once the server is running, you can launch the app.  
+The machine running the server should join as the **Host**, sharing a screen visible to all players.  
+Other players, using their own devices, can join as **Clients**.
+
+This README explains how to set up and run the server locally on your machine.
 
 
 ### 🧑‍💻 Requirements
@@ -13,6 +23,9 @@ Before you begin, ensure you have the following installed:
 ---
 
 ## 🎮 Running the Server Locally
+
+> ⚠️ By default, the app connects to the Render-hosted server.  
+> To use your local server instead, set the `USE_LOCAL_SERVER` environment variable to `true` before running the app.
 
 ### 1. Navigate to the Host Folder
 
@@ -36,6 +49,38 @@ Once the dependencies are installed, start the WebSocket server. This will launc
 
 ```bash
 npm start
+```
+
+---
+
+## 🏗️ Building PartyQuizApp
+
+Navigate to the directory of the expo app. 
+
+```bash
+cd PartyQuiz/PartyQuizApp
+```
+
+### 🧪 For Testing
+
+To launch the development server:
+```bash
+npm start
+```
+
+### 🚀 Deploying to Platforms
+
+To build the app for different platforms:
+
+```bash
+npx expo run:ios
+npx expo run:android
+npx expo export --platform web
+```
+
+If using EAS Build (recommended for production builds), use:
+```bash
+npx eas build --platform ios
 ```
 
 ---
@@ -77,15 +122,58 @@ Everyone else joins as a **Client**.
 
 ---
 
-## 🚀 Next Step: Host Your Server on Render
+## Deploying to GitHub Pages
 
-The next step would be to host your PartyQuiz server on **Render**. By deploying to Render, you can:
+This app is deployed to GitHub Pages, making it accessible as a static website.
 
-- Make the game accessible to anyone, anywhere.
-- Avoid having to rely on a local machine for hosting.
-- Benefit from easy scaling, automatic updates, and security features.
+### How it Works
 
-Just follow the simple steps to deploy your server on Render, and you’re ready to play with friends online! 🎉
+The app is hosted on GitHub Pages and can be accessed by visiting:
+[PartyQuiz](https://encoded.github.io/PartyQuiz)
+
+Users can directly visit this URL to interact with the app. 
+The mobile version can join the game by scanning the QR code displayed on the website.
+
+---
+
+## 🚀 Hosting Server on Render
+
+The PartyQuiz server is hosted on **Render**, which allows players to connect and play from anywhere without needing a local machine running.
+
+### Why Render?
+
+- No local setup needed  
+- Accessible from any device, anywhere  
+- Easy to deploy and maintain  
+
+### 🛠️ Steps to Deploy
+
+1. **Push the server code to GitHub**  
+   Make sure your server lives in a subdirectory like `/server` inside your project repo.
+
+2. **Create a new Web Service on Render**  
+   Go to [https://render.com](https://render.com), log in, and select **"New Web Service"**.
+
+3. **Connect your GitHub repo**  
+   Choose the repo that contains your server.
+
+4. **Configure the service:**
+   - **Build Command:** `npm install`
+   - **Start Command:** `node server.js` (or your entry file)
+   - **Root Directory:** `server` (or your server folder)
+   - **Port:** Make sure your server listens on `process.env.PORT`
+
+5. **Deploy**  
+   Click **"Create Web Service"** and wait for it to deploy. Once live, copy the public URL — you’ll use it in the app.
+
+### 🌐 Still Want to Run Locally?
+
+No problem! The app supports both modes. You can:
+
+- Host the server locally by following the [Run the Server](#3-run-the-server) section.
+- Toggle between local and remote servers using an environment variable.
+
+> The app is smart enough to switch based on the build context — see the deployment section for details.
 
 ---
 

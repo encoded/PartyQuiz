@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useNetwork } from '@src/context/NetworkContext';
 
+import { useLocal } from '@src/config/Network';
+
 const HostContext = createContext();
 
 export const HostProvider = ({ children }) => {
@@ -12,7 +14,10 @@ export const HostProvider = ({ children }) => {
   useEffect(() => {
     if (!ipAddress) return;
 
-    const ws = new WebSocket(`ws://${ipAddress}:3000`);
+    const ws = useLocal ?
+      new WebSocket(`ws://${ipAddress}:3000`) :
+      new WebSocket('wss://partyquiz.onrender.com');
+
     setSocket(ws);
 
     ws.onopen = () => {
