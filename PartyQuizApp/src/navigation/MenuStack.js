@@ -2,7 +2,6 @@ import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { Ionicons } from '@expo/vector-icons'; 
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import StartScreen from '@screens/StartScreen';
 import HostScreen from '@screens/HostScreen';
@@ -11,20 +10,19 @@ import ClientScreen from '@screens/ClientScreen';
 import SPACING from '@src/config/Spacing';
 import NAVIGATION from '@src/config/Navigation';
 
+import { getMarginTop } from '@src/config/Spacing';
+
 const Stack = createStackNavigator();
 
 // Header with button
 const Header = ({ navigation }) => {
-
-  const insets = useSafeAreaInsets(); // Get dynamic safe area insets
-
   return (
     <View style={{
       position: "absolute",
       alignItems: 'flex-start',
       height: SPACING.headerSize,
       paddingLeft: SPACING.paddingHorizontal,
-      marginTop: insets.top
+      marginTop: getMarginTop()
     }}>
       <TouchableOpacity
         onPress={() => navigation.goBack()}

@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SIZES from '@src/config/Sizes';
 
 import { useLocal } from '@src/config/Network';
+import { getMarginBottom } from '@src/config/Spacing';
 
 // Create the context
 export const NetworkContext = createContext();
@@ -38,7 +39,7 @@ export const NetworkProvider = ({ children }) => {
     <NetworkContext.Provider value={{ ipAddress, isConnected }}>
       {children}
       {/* Debug View */}
-      <View style={[styles.debugContainer, { bottom: insets.bottom }]}>
+      <View style={[styles.debugContainer, { bottom: getMarginBottom(), left: getMarginBottom()}]}>
         <Text style={styles.debugText}>Connected: {isConnected ? 'Yes' : 'No'}</Text>
         <Text style={styles.debugText}>IP Address: {ipAddress || 'N/A'}</Text>
         <Text style={styles.debugText}>Using local server: {(useLocal ? 'true' : 'false') || 'N/A'}</Text>
@@ -50,7 +51,6 @@ export const NetworkProvider = ({ children }) => {
 const styles = StyleSheet.create({
   debugContainer: {
     position: 'absolute',
-    left: SIZES.medium,
     backgroundColor: '#000000aa',
     padding: SIZES.small,
     borderRadius: 6,

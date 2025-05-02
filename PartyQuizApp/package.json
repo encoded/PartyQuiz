@@ -8,8 +8,8 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "postinstall": "node ./scripts/project-setup.js",
-    "predeploy": "USE_LOCAL_SERVER=false npx expo export --platform web",
-    "deploy": "gh-pages --nojekyll -d dist"
+    "build:web-ghpages": "USE_LOCAL_SERVER=false BASE_URL=/PartyQuiz npx expo export --platform web",
+    "deploy:ghpages": "npm run build:web-ghpages && gh-pages --add --nojekyll -d dist"
   },
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",

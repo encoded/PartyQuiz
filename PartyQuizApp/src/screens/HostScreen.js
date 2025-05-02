@@ -53,6 +53,7 @@ const styles = StyleSheet.create({
   playerName: {
     fontSize: 16,
     marginVertical: 5,
+    textAlign: 'center'
   },
   errorText: {
     textAlign: 'center',

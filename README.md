@@ -1,6 +1,7 @@
 # PartyQuiz
 
-The app is live at [PartyQuiz](https://encoded.github.io/PartyQuiz)!
+The app is live at [PartyQuiz🎉](https://encoded.github.io/PartyQuiz)!
+
 At the moment the app will connect to a server hosted on **Render**.
 More info
 

@@ -1,19 +1,18 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import COLORS from '@src/config/Colors';
 import SPACING from '@src/config/Spacing';
 
-export default function LayoutScreen({ children, style }) {
-  const insets = useSafeAreaInsets();
+import { getMarginBottom, getMarginTop } from '@src/config/Spacing';
 
+export default function LayoutScreen({ children, style }) {
   return (
     <View
       style={[
         styles.container,
         {
-          paddingTop: insets.top + SPACING.headerSize,
-          paddingBottom: insets.bottom + 20,
+          paddingTop: getMarginTop() + SPACING.headerSize,
+          paddingBottom: getMarginBottom()
         },
         style,
       ]}

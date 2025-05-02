@@ -24,16 +24,18 @@ export default {
       }
     },
     web: {
-      favicon: "./assets/favicon.png"
+      favicon: "./assets/favicon.png",
+      bundler: "metro"
     },
     plugins: [
       ["expo-camera"]
     ],
     experiments: {
-      baseUrl: "/PartyQuiz"
+      baseUrl: process.env.BASE_URL || ''
     },
     extra: {
       USE_LOCAL_SERVER: process.env.USE_LOCAL_SERVER || 'false'
-    }
+    },
+    assetBundlePatterns: ["**/*"]
   }
 };
