@@ -6,12 +6,14 @@ import LayoutScreen from './LayoutScreen';
 import TextComponent from '@src/components/TextComponent';
 import TextInputComponent from '@src/components/TextInputComponent';
 import ButtonComponent from '@src/components/ButtonComponent';
+import { getMinDimension } from '@src/config/Spacing';
 
 const ClientScreen = () => {
   const [scanned, setScanned] = useState(false);
   const [inputIp, setInputIp] = useState('');
   const [inputName, setInputName] = useState('');
   const { connectToHost, isConnected } = useClient();
+  const minDimension = getMinDimension();
 
   const handleBarCodeScanned = (result) => {
     if (!scanned && result?.data) {
@@ -31,7 +33,7 @@ const ClientScreen = () => {
       ) :
       (
         !scanned ? (
-        <View style={styles.cameraContainer}>
+        <View style={[styles.cameraContainer, {width: minDimension * 0.8}]}>
           <CameraComponent onBarcodeScanned={handleBarCodeScanned} />
         </View>
         ) :
@@ -54,8 +56,7 @@ const ClientScreen = () => {
 
 const styles = StyleSheet.create({
   cameraContainer: {
-    aspectRatio: 1, 
-    width: "100%"
+    aspectRatio: 1
   },
   inputContainer: { 
     width: '100%', 

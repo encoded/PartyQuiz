@@ -1,4 +1,4 @@
-import { Platform } from 'react-native';
+import { Platform, useWindowDimensions } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SIZES from "./Sizes";
 
@@ -16,6 +16,16 @@ export const getMarginTop = () => {
 export const getMarginBottom = () => {
   const insets = useSafeAreaInsets();
   return Platform.OS === 'web' ? SIZES.small : insets.bottom;
+};
+
+export const getMaxDimension = () => {
+  const { width, height } = useWindowDimensions();
+  return Math.max(width, height);
+};
+
+export const getMinDimension = () => {
+  const { width, height } = useWindowDimensions();
+  return Math.min(width, height);
 };
 
 export default SPACING;
