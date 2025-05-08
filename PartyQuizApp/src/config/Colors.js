@@ -5,6 +5,7 @@ const COLORS = {
   text: 'white',
   white: '#fff',
   black: '#000',
+  disabled: '#888', // darker grey
 };
 
 export default COLORS;

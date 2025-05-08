@@ -1,3 +1,4 @@
+const { CLIENT_TO_SERVER, SERVER_TO_CLIENT } = require('../shared/messages');
 const WebSocket = require('ws');
 const http = require('http');
 const express = require('express');
@@ -33,17 +34,29 @@ wss.on('connection', (ws) => {
     const data = JSON.parse(message);
     console.log('Message:', data);
 
-    if (data.type === 'join') {
-      const rawIp = ws._socket.remoteAddress;
-      const clientIp = rawIp.startsWith("::ffff:") ? rawIp.replace("::ffff:", "") : rawIp;
-      console.log("Client IP:", clientIp);
+    switch (data.type) {
+      case CLIENT_TO_SERVER.JOIN: 
+        const rawIp = ws._socket.remoteAddress;
+        const clientIp = rawIp.startsWith("::ffff:") ? rawIp.replace("::ffff:", "") : rawIp;
+        console.log("Client IP:", clientIp);
 
-      players.set(ws, { name: data.name, ip: clientIp });
-      broadcastPlayerList();
+        players.set(ws, { name: data.name, ip: clientIp });
+        broadcastPlayerList();
+        break;
+      case CLIENT_TO_SERVER.GET_PLAYERS: 
+        broadcastPlayerList();
+        break;
+      case CLIENT_TO_SERVER.START_GAME:
+        // any setup required by server here
+        broadcastMessage({ type: SERVER_TO_CLIENT.GAME_START });
+        break;
+      case CLIENT_TO_SERVER.PING:
+        broadcastMessage({ type: SERVER_TO_CLIENT.PONG });
+        break;
+      default:
+        console.log('Unknown message type:', data.type);
     }
-    else if (data.type === 'get_players') {
-      broadcastPlayerList();
-    }
+
   });
 
   ws.on('close', () => {
@@ -52,16 +65,21 @@ wss.on('connection', (ws) => {
   });
 });
 
-// Broadcast the updated list of players to all clients
-function broadcastPlayerList() {
-  const playerList = Array.from(players.values());
-  const message = JSON.stringify({ type: 'player_list', players: playerList });
-
-  for (const client of wss.clients) {
+// Broadcast a message to all cients
+function broadcastMessage(messageObj) {
+  const message = JSON.stringify(messageObj);
+  wss.clients.forEach(client => {
     if (client.readyState === WebSocket.OPEN) {
       client.send(message);
     }
-  }
+  });
+}
+
+
+// Broadcast the updated list of players to all clients
+function broadcastPlayerList() {
+  const playerList = Array.from(players.values());
+  broadcastMessage({ type: SERVER_TO_CLIENT.PLAYER_LIST, players: playerList });
 }
 
 app.use(express.static('public'));

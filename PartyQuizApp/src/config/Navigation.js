@@ -2,7 +2,10 @@ const NAVIGATION = {
   SCREENS: {
     START: "StartScreen",
     HOST: "HostScreen",
-    CLIENT: "ClientScreen"
+    CLIENT: "ClientScreen",
+
+    HOST_GAME: "HostGameScreen",
+    CLIENT_GAME: "ClientGameScreen"
   }
 };
 

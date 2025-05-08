@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet } from 'react-native';
 import CameraComponent from '@src/components/CameraComponent';
 import { useClient } from '@src/context/ClientContext';
@@ -7,13 +7,25 @@ import TextComponent from '@src/components/TextComponent';
 import TextInputComponent from '@src/components/TextInputComponent';
 import ButtonComponent from '@src/components/ButtonComponent';
 import { getMinDimension } from '@src/config/Spacing';
+import { useNavigation } from '@react-navigation/native';
+import NAVIGATION from '@src/config/Navigation';
+import { SERVER_TO_CLIENT } from '@shared/messages';
 
 const ClientScreen = () => {
+  const navigation = useNavigation();
   const [scanned, setScanned] = useState(false);
   const [inputIp, setInputIp] = useState('');
   const [inputName, setInputName] = useState('');
-  const { connectToHost, isConnected } = useClient();
+  const { connectToHost, isConnected, incomingMessageData} = useClient();
   const minDimension = getMinDimension();
+
+  // Listen to server game start to move onto the game screen
+  useEffect(()=>{
+    if(incomingMessageData && incomingMessageData.type === SERVER_TO_CLIENT.GAME_START)
+    {
+      navigation.navigate(NAVIGATION.SCREENS.CLIENT_GAME);
+    }
+  }, [incomingMessageData]);
 
   const handleBarCodeScanned = (result) => {
     if (!scanned && result?.data) {
@@ -29,7 +41,7 @@ const ClientScreen = () => {
   return (
     <LayoutScreen>
       {isConnected ? (
-        <TextComponent style={styles.text}>Connection successful!{'\n\n'}Waiting for other players...</TextComponent>
+        <TextComponent style={styles.text}>Connection successful!{'\n\n'}Waiting for host to start the game...</TextComponent>
       ) :
       (
         !scanned ? (

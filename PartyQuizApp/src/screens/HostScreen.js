@@ -1,15 +1,28 @@
 import React, { useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 import LayoutScreen from './LayoutScreen';
 import TextComponent from '@src/components/TextComponent';
 import { useHost } from '@src/context/HostContext';
+import ButtonComponent from '@src/components/ButtonComponent';
+import { useNavigation } from '@react-navigation/native';
+import NAVIGATION from '@src/config/Navigation';
+import { CLIENT_TO_SERVER, SERVER_TO_CLIENT } from '@shared/messages';
 
 const HostScreen = () => {
-  const { ipAddress, players, isServerConnected } = useHost();
+  const { ipAddress, players, isServerConnected, incomingMessageData, sendMessage } = useHost();
+  const navigation = useNavigation();
+
+  // Listen to server game start to move onto the game screen
+  useEffect(()=>{
+    if(incomingMessageData && incomingMessageData.type === SERVER_TO_CLIENT.GAME_START)
+    {
+      navigation.navigate(NAVIGATION.SCREENS.HOST_GAME);
+    }
+  }, [incomingMessageData]);
 
   return (
-    <LayoutScreen>
+    <LayoutScreen style={styles.container}>
       <TextComponent style={styles.title}>Scan this QR code to join the game!</TextComponent>
       {!ipAddress && <Text>Loading IP...</Text>}
       {ipAddress && isServerConnected ? (
@@ -19,40 +32,49 @@ const HostScreen = () => {
       ) : null}
 
       <TextComponent style={styles.subtitle}>Players currently connected:</TextComponent>
-      <ScrollView style={styles.playerList}>
+      <View style={styles.playerList}>
         {players.length === 0 ? (
-          <TextComponent>No players have joined yet.</TextComponent>
+          <TextComponent style={styles.playerName}>No players have joined yet.</TextComponent>
         ) : (
-          players.map((player, index) => (
-            <TextComponent key={index} style={styles.playerName}>
-              {player.name}
-            </TextComponent>
-          ))
+          <FlatList
+            data={players}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => (
+              <TextComponent style={styles.playerName}>{item.name}</TextComponent>
+            )}
+            scrollEnabled={players.length > 5} // scroll only if too many
+            style={styles.playerList}
+            contentContainerStyle={{ flexGrow: 0, rowGap: 10}} // critical: prevents stretching
+          />
         )}
-      </ScrollView>
+      </View>
+
+      <ButtonComponent
+        text={"Start Game"}
+        onPress={()=>sendMessage({type: CLIENT_TO_SERVER.START_GAME})}
+        disabled={players.length == 0}
+      />
     </LayoutScreen>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    rowGap: 20,
+  },  
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
-    marginBottom: 20,
+    fontWeight: 'bold'
   },
   subtitle: {
-    fontSize: 16,
-    marginTop: 20,
-    marginBottom: 10,
+    fontSize: 16
   },
   playerList: {
     width: '100%',
-    marginTop: 10,
-    paddingHorizontal: 20,
+    paddingHorizontal: 20
   },
   playerName: {
     fontSize: 16,
-    marginVertical: 5,
     textAlign: 'center'
   },
   errorText: {

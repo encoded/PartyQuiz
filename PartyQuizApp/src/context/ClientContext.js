@@ -1,40 +1,45 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useLocal } from '@src/config/Network';
 
+import { CLIENT_TO_SERVER, SERVER_TO_CLIENT} from '@shared/messages'
+import { sendMessageToServer } from '@src/utils/networkUtils';
+
 export const ClientContext = createContext();
 
 export const ClientProvider = ({ children }) => {
   const [hostIp, setHostIp] = useState(null);
   const [playerName, setPlayerName] = useState('');
   const [isConnected, setIsConnected] = useState(false);
+  const [incomingMessageData, setIncomingMessageData] = useState(null); //incoming message data from server
   const socketRef = useRef(null);
 
   const connectToHost = (ip, name) => {
     if (!ip || !name) return;
 
-    const socket = useLocal ? 
+    const ws = useLocal ? 
       new WebSocket(`ws://${ip}:3000`) :
       new WebSocket('wss://partyquiz.onrender.com');
 
-    socketRef.current = socket;
+    socketRef.current = ws;
 
-    socket.onopen = () => {
+    ws.onopen = () => {
       console.log('Connected to WebSocket server');
       setIsConnected(true);
-      socket.send(JSON.stringify({ type: 'join', name }));
+      ws.send(JSON.stringify({ type: CLIENT_TO_SERVER.JOIN, name }));
     };
 
-    socket.onmessage = (event) => {
-      console.log('Received from server:', event.data);
-      // You can add message parsing and events here
+    ws.onmessage = (event) => {
+      //console.log('Client - Received from server:', event.data);
+      const data = JSON.parse(event.data);
+      setIncomingMessageData(data);
     };
 
-    socket.onerror = (error) => {
+    ws.onerror = (error) => {
       console.error('WebSocket Error:', error);
       setIsConnected(false);
     };
 
-    socket.onclose = () => {
+    ws.onclose = () => {
       console.log('WebSocket connection closed');
       setIsConnected(false);
     };
@@ -44,11 +49,7 @@ export const ClientProvider = ({ children }) => {
   };
 
   const sendMessage = (data) => {
-    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
-      socketRef.current.send(JSON.stringify(data));
-    } else {
-      console.warn('Socket is not open.');
-    }
+    sendMessageToServer(socketRef.current, data);
   };
 
   return (
@@ -57,8 +58,9 @@ export const ClientProvider = ({ children }) => {
         hostIp,
         playerName,
         isConnected,
+        incomingMessageData,
         connectToHost,
-        sendMessage,
+        sendMessage
       }}
     >
       {children}

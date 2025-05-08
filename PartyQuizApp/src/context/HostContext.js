@@ -1,7 +1,10 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useNetwork } from '@src/context/NetworkContext';
 
 import { useLocal } from '@src/config/Network';
+import { sendMessageToServer } from '@src/utils/networkUtils';
+
+import { CLIENT_TO_SERVER, SERVER_TO_CLIENT} from '@shared/messages'
 
 const HostContext = createContext();
 
@@ -9,7 +12,8 @@ export const HostProvider = ({ children }) => {
   const { ipAddress } = useNetwork();
   const [players, setPlayers] = useState([]);
   const [isServerConnected, setIsServerConnected] = useState(false);
-  const [socket, setSocket] = useState(null);
+  const [incomingMessageData, setIncomingMessageData] = useState(null); //incoming message data from server
+  const socketRef = useRef(null);
 
   useEffect(() => {
     if (!ipAddress) return;
@@ -18,18 +22,21 @@ export const HostProvider = ({ children }) => {
       new WebSocket(`ws://${ipAddress}:3000`) :
       new WebSocket('wss://partyquiz.onrender.com');
 
-    setSocket(ws);
+    socketRef.current = ws;
 
     ws.onopen = () => {
       console.log('Connected to WebSocket server');
       setIsServerConnected(true);
       
-      ws.send(JSON.stringify({ type: 'get_players' }));
+      ws.send(JSON.stringify({ type: CLIENT_TO_SERVER.GET_PLAYERS }));
     };
 
     ws.onmessage = (event) => {
+      //console.log('Host - Received from server:', event.data);
       const data = JSON.parse(event.data);
-      if (data.type === 'player_list') {
+      setIncomingMessageData(data);
+
+      if (data.type === SERVER_TO_CLIENT.PLAYER_LIST) {
         setPlayers(data.players);
       }
     };
@@ -49,8 +56,18 @@ export const HostProvider = ({ children }) => {
     };
   }, [ipAddress]);
 
+  const sendMessage = (data) => {
+    sendMessageToServer(socketRef.current, data);
+  };
+
   return (
-    <HostContext.Provider value={{ players, isServerConnected, ipAddress, socket }}>
+    <HostContext.Provider value={{ 
+      players, 
+      isServerConnected, 
+      ipAddress, 
+      incomingMessageData,
+      sendMessage
+    }}>
       {children}
     </HostContext.Provider>
   );

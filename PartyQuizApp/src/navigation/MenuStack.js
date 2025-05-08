@@ -11,6 +11,8 @@ import SPACING from '@src/config/Spacing';
 import NAVIGATION from '@src/config/Navigation';
 
 import { getMarginTop } from '@src/config/Spacing';
+import HostGameScreen from '@src/screens/HostGameScreen';
+import ClientGameScreen from '@src/screens/ClientGameScreen';
 
 const Stack = createStackNavigator();
 
@@ -60,6 +62,20 @@ const MenuStack = ({ route }) => {
         options={({ navigation }) => ({
           header: () => <Header navigation={navigation} />,  // Custom header component
         })}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.HOST_GAME} 
+        component={HostGameScreen} 
+        options={{
+          headerShown: false
+        }}
+      />
+      <Stack.Screen 
+        name={NAVIGATION.SCREENS.CLIENT_GAME} 
+        component={ClientGameScreen} 
+        options={{
+          headerShown: false
+        }}
       />
     </Stack.Navigator>
 )};

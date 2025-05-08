@@ -3,9 +3,13 @@ import { TouchableOpacity, Text, StyleSheet } from 'react-native';
 import TextComponent from './TextComponent';
 import COLORS from '@src/config/Colors';
 
-const ButtonComponent = ({ text, onPress, style }) => {
+const ButtonComponent = ({ text, style, disabled, ...rest }) => {
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
+    <TouchableOpacity 
+      {...rest} 
+      disabled={disabled} 
+      style={[styles.button, disabled && styles.disabledButton, style]}
+    >
       <TextComponent>{text}</TextComponent>
     </TouchableOpacity>
   );
@@ -19,6 +23,9 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     marginVertical: 8,
     alignItems: 'center',
+  },
+  disabledButton: {
+    backgroundColor: COLORS.disabled
   }
 });
 
