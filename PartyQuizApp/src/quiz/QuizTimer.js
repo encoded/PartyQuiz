@@ -91,8 +91,8 @@ export default class QuizTimer {
 
   async stop() {
     this._clearInterval();
-    this.remainingSeconds = this.durationSeconds;
-    this._setStatus(QuizTimerState.STOPPED);
     this.onTick(this.remainingSeconds);
+    this._setStatus(QuizTimerState.STOPPED);
+    this.remainingSeconds = this.durationSeconds;
   }
 }

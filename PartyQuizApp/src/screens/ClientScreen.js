@@ -21,8 +21,14 @@ const ClientScreen = () => {
 
   // Listen to server game start to move onto the game screen
   useEffect(()=>{
-    if(incomingMessageData && incomingMessageData.type === SERVER_TO_CLIENT.GAME_START)
+    if(!incomingMessageData)
     {
+      return;
+    }
+
+    if(incomingMessageData.type === SERVER_TO_CLIENT.GAME_START)
+    {
+      console.log("Game start!");
       navigation.navigate(NAVIGATION.SCREENS.CLIENT_GAME);
     }
   }, [incomingMessageData]);

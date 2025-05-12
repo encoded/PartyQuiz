@@ -1,4 +1,9 @@
-const { CLIENT_TO_SERVER, SERVER_TO_CLIENT } = require('../shared/messages');
+require('module-alias/register');
+const { CLIENT_TO_SERVER, SERVER_TO_CLIENT } = require('@shared/messages');
+const QuizManager = require('@src/quizManager');
+const quizData = require('@data/tempQuizData');
+const { getClientSanitisedIp } = require('@src/utils');
+
 const WebSocket = require('ws');
 const http = require('http');
 const express = require('express');
@@ -8,6 +13,7 @@ const app = express();
 const PORT = 3000;
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
+let quizManager = new QuizManager(wss, quizData);
 
 const players = new Map(); // Store players by their WebSocket connection
 
@@ -35,9 +41,13 @@ wss.on('connection', (ws) => {
     console.log('Message:', data);
 
     switch (data.type) {
+      case CLIENT_TO_SERVER.INIT_SERVER: 
+        quizManager.reset(); //reset quiz data
+        players.clear(); // Clear all players
+        broadcastPlayerList(); // Notify clients that the list is empty
+        break;
       case CLIENT_TO_SERVER.JOIN: 
-        const rawIp = ws._socket.remoteAddress;
-        const clientIp = rawIp.startsWith("::ffff:") ? rawIp.replace("::ffff:", "") : rawIp;
+        const clientIp = getClientSanitisedIp(ws);
         console.log("Client IP:", clientIp);
 
         players.set(ws, { name: data.name, ip: clientIp });
@@ -47,8 +57,15 @@ wss.on('connection', (ws) => {
         broadcastPlayerList();
         break;
       case CLIENT_TO_SERVER.START_GAME:
-        // any setup required by server here
         broadcastMessage({ type: SERVER_TO_CLIENT.GAME_START });
+
+        setTimeout(() => {
+          quizManager = new QuizManager(wss, quizData, players);
+          quizManager.restart();
+        }, 1000);
+        break;
+      case CLIENT_TO_SERVER.SUBMIT_ANSWER:
+        quizManager.receiveAnswer(ws, data.selectedIndex);
         break;
       case CLIENT_TO_SERVER.PING:
         broadcastMessage({ type: SERVER_TO_CLIENT.PONG });

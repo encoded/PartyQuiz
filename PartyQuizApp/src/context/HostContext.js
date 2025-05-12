@@ -28,11 +28,12 @@ export const HostProvider = ({ children }) => {
       console.log('Connected to WebSocket server');
       setIsServerConnected(true);
       
+      ws.send(JSON.stringify({ type: CLIENT_TO_SERVER.INIT_SERVER }));
       ws.send(JSON.stringify({ type: CLIENT_TO_SERVER.GET_PLAYERS }));
     };
 
     ws.onmessage = (event) => {
-      //console.log('Host - Received from server:', event.data);
+      console.log('Host - Received from server:', event.data);
       const data = JSON.parse(event.data);
       setIncomingMessageData(data);
 

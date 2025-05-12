@@ -7,6 +7,12 @@
   },
   "dependencies": {
     "express": "^5.1.0",
+    "module-alias": "^2.2.3",
     "ws": "^8.18.1"
+  },
+  "_moduleAliases": {
+    "@src": "./src",
+    "@data": "./data",
+    "@shared": "./../shared"
   }
 }

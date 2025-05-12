@@ -1,97 +1,54 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useEffect, useDebugValue } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import QuizTimer, { QuizTimerState } from './QuizTimer';
 
 const QuizCard = ({
   question,
   options,
-  answer,
-  onQuizEnd,
-  timeLimitSeconds
+  correctAnswer, // this is null during countdown, becomes a string after timeout
+  onOptionChosen,
+  style,
+  disabled = false,
+  renderOptionOverlay = () => null,
+  renderCardOverlay = () => null,
 }) => {
-  const waitTimeSeconds = 2;
-
-  const shuffledOptions = useMemo(() => {
-    const shuffled = [...options];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  }, [question]);
-
-  const correctIndex = shuffledOptions.findIndex(opt => opt === answer);
   const [selectedIndex, setSelectedIndex] = useState(null);
-  const [remainingTime, setRemainingTime] = useState(timeLimitSeconds);
+  const correctIndex = correctAnswer != null ? options.findIndex(opt => opt === correctAnswer) : null;
 
-  const quizTimerRef = useRef(null);
-
-  useEffect(() => {
+  useEffect(()=>{
     setSelectedIndex(null);
-
-    if (quizTimerRef.current) {
-      quizTimerRef.current.stop();
-    }
-
-    const timer = new QuizTimer({
-      durationSeconds: timeLimitSeconds,
-      onTick: setRemainingTime,
-      onQuizTimerStateChanged: (status) => {
-        if (status === QuizTimerState.COMPLETED && selectedIndex === null) {
-          setSelectedIndex(-1);
-          handleEndQuiz();
-        }
-      }
-    });
-
-    quizTimerRef.current = timer;
-    timer.start();
-
-    setRemainingTime(timeLimitSeconds);
-
-    return () => {
-      timer.stop();
-    };
-  }, [question]);
+  }, [question, options])
 
   const onOptionPress = (index) => {
+    if (selectedIndex !== null || correctAnswer !== null) return; // prevent multi-select or late correctAnswer
     setSelectedIndex(index);
-
-    if (quizTimerRef.current) {
-      quizTimerRef.current.stop();
-    }
-
-    handleEndQuiz();
-  };
-
-  const handleEndQuiz = () => {
-    setTimeout(() => {
-      const isCorrect = selectedIndex === correctIndex;
-      onQuizEnd(isCorrect);
-      setSelectedIndex(null);
-    }, waitTimeSeconds * 1000);
+    onOptionChosen(index);
   };
 
   return (
-    <View style={styles.card}>
-      <Text style={styles.timeText}>{remainingTime}</Text>
+    <View style={[styles.card, style]}>
+      {/* Render widget in top-right of the card*/}
+      <View style={styles.cardOverlayContainer}>
+        {renderCardOverlay()}
+      </View>
 
       <View style={styles.questionContainer}>
         <Text style={[styles.text, styles.question]}>{question}</Text>
       </View>
 
       <View style={styles.optionsContainer}>
-        {shuffledOptions.map((option, index) => {
+        {options.map((option, index) => {
           const isSelected = index === selectedIndex;
           const isCorrect = index === correctIndex;
 
           let buttonStyle = styles.optionButton;
-          if (selectedIndex !== null) {
+          if (correctAnswer !== null) {
             if (isCorrect) {
               buttonStyle = [buttonStyle, styles.correctAnswer];
             } else if (isSelected) {
               buttonStyle = [buttonStyle, styles.wrongAnswer];
             }
+          } else if (isSelected) {
+            buttonStyle = [buttonStyle, styles.selectedOption];
           }
 
           return (
@@ -99,9 +56,14 @@ const QuizCard = ({
               key={index}
               style={buttonStyle}
               onPress={() => onOptionPress(index)}
-              disabled={selectedIndex !== null}
+              disabled={disabled || selectedIndex !== null || correctAnswer !== null}
             >
               <Text style={[styles.text, styles.optionText]}>{option}</Text>
+
+              {/* Render widget in top-right */}
+              <View style={styles.optionOverlayContainer}>
+                {renderOptionOverlay(index)}
+              </View>
             </TouchableOpacity>
           );
         })}
@@ -115,16 +77,17 @@ const styles = StyleSheet.create({
     flex: 1,
     borderRadius: 16,
     padding: 20,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff',
+    width: '100%',
+    borderWidth: 2,
+    borderColor: '#000'
   },
-  timeText: {
+  cardOverlayContainer: {
     position: 'absolute',
     top: 0,
     right: 0,
-    marginRight: 50,
-    marginTop: 50,
-    textAlign: 'center',
-    fontSize: 32,
+    marginRight: 20,
+    marginTop: 20
   },
   text: {
     textAlignVertical: 'center',
@@ -151,6 +114,11 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     width: '50%',
   },
+  selectedOption: {
+    backgroundColor: '#d3d3d3', // light grey
+    borderWidth: 2,
+    borderColor: '#a9a9a9', // dark grey
+  },
   correctAnswer: {
     backgroundColor: '#50D960',
   },
@@ -160,6 +128,14 @@ const styles = StyleSheet.create({
   optionText: {
     fontSize: 16,
   },
+  optionOverlayContainer: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 4,
+  }  
 });
 
 export default QuizCard;

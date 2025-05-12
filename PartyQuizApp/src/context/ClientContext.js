@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useLocal } from '@src/config/Network';
+import { useNetwork } from '@src/context/NetworkContext';
 
 import { CLIENT_TO_SERVER, SERVER_TO_CLIENT} from '@shared/messages'
 import { sendMessageToServer } from '@src/utils/networkUtils';
@@ -7,6 +8,7 @@ import { sendMessageToServer } from '@src/utils/networkUtils';
 export const ClientContext = createContext();
 
 export const ClientProvider = ({ children }) => {
+  const { ipAddress } = useNetwork();
   const [hostIp, setHostIp] = useState(null);
   const [playerName, setPlayerName] = useState('');
   const [isConnected, setIsConnected] = useState(false);
@@ -29,7 +31,7 @@ export const ClientProvider = ({ children }) => {
     };
 
     ws.onmessage = (event) => {
-      //console.log('Client - Received from server:', event.data);
+      console.log('Client - Received from server:', event.data);
       const data = JSON.parse(event.data);
       setIncomingMessageData(data);
     };
@@ -55,6 +57,7 @@ export const ClientProvider = ({ children }) => {
   return (
     <ClientContext.Provider
       value={{
+        ipAddress,
         hostIp,
         playerName,
         isConnected,

@@ -1,5 +1,6 @@
 // For simplicity these messages are defined with an action
 export const CLIENT_TO_SERVER = {
+  INIT_SERVER: 'init_server',
   JOIN: 'join',
   GET_PLAYERS: 'get_players',
   START_GAME: 'start_game',
@@ -14,6 +15,5 @@ export const SERVER_TO_CLIENT = {
   PLAYER_LIST: 'player_list',
   QUESTION_START: 'question_start',
   QUESTION_END: 'question_end',
-  NEXT_QUESTION: 'next_question',
   PONG: 'pong',
 };
