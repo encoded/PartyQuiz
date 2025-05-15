@@ -3,7 +3,7 @@
 The app is live at [PartyQuiz🎉](https://encoded.github.io/PartyQuiz)!
 
 At the moment the app will connect to a server hosted on **Render**.
-More info
+[More info](#hosting-server-on-render)
 
 However, a local server must still be run to play the game. Please follow the instructions in the section: [Run the Server](#3-run-the-server).
 
